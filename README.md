@@ -1087,8 +1087,6 @@ Diagnosis → Policy
 Procedure + Diagnosis → Policy criteria
 ```
 
----
-
 ## `rules_engine.py`
 
 Responsible for:
@@ -1099,8 +1097,6 @@ Documentation requirement
 Coverage signal
 Clinical criteria signal
 ```
-
----
 
 ## `risk_engine.py`
 
@@ -1117,8 +1113,6 @@ ML
 ```
 
 into the final risk profile.
-
----
 
 ## `llm.py`
 
@@ -1262,225 +1256,325 @@ That is the intelligence layer.
 
 ---
 
-# 42. MVP Definition
+# 42. Development Phases
 
-Do not attempt to build everything initially.
+The project should be developed in sequential phases. Each phase produces a usable capability before the next layer is added.
 
-The MVP should contain only:
+---
 
-### Input
+## Phase 1 — Foundation & Intelligence MVP
+
+### Goal
+
+Build the **core prior-authorization intelligence engine without machine learning**.
+
+The first version should establish the data foundation, policy-matching logic, rules engine, evidence layer, and basic Streamlit experience.
+
+### Phase 1 Capabilities
+
+#### Data foundation
+
+Build standardized datasets for:
+
+* CPT/HCPCS
+* ICD-10
+* Claims
+* Providers
+* Payers
+* Coverage policies
+* Authorization rules
+
+#### Policy intelligence
+
+Build:
 
 ```text
 Procedure
-Diagnosis
+    ↓
+Applicable Policy
+    ↓
+Diagnosis Criteria
+    ↓
+Authorization Requirement
+    ↓
+Documentation Requirement
+```
+
+#### Rules engine
+
+Implement deterministic rules for:
+
+* Potential PA requirement
+* Procedure/diagnosis policy matching
+* Documentation requirements
+* Coverage signals
+* Policy effective dates
+* Policy ambiguity
+
+#### Evidence layer
+
+Every risk signal must be traceable to:
+
+```text
+Signal
+↓
+Evidence
+↓
+Policy
+↓
+Source
+↓
+Effective Date
+```
+
+#### Streamlit MVP
+
+Create the initial:
+
+**PA Risk Assessment** page.
+
+Inputs:
+
+```text
 Payer
-Date
-Place of service
+Procedure
+Diagnosis
+Place of Service
+Request Date
 ```
 
-### Engine
+Outputs:
 
 ```text
-Policy lookup
-+
-Procedure/diagnosis matching
-+
-Rules-based risk
+Overall risk
+Authorization risk
+Clinical criteria risk
+Documentation risk
+Coverage risk
+Reasons
+Evidence
+Recommended verification
 ```
 
-### Output
+### Phase 1 does NOT include
 
-```text
-Risk level
-+
-Risk reasons
-+
-Policy evidence
-+
-Recommended verification steps
-```
+* Machine learning
+* Predictive approval/denial modeling
+* Complex provider scoring
+* LLM-generated decisions
+* Automated authorization decisions
 
-### AI
+### Phase 1 Success Criteria
 
-One grounded explanation.
+A user can enter:
 
-That is enough for a strong first demo.
+> **Procedure + Diagnosis + Payer + Date**
+
+and receive:
+
+1. Applicable policy
+2. Potential authorization requirement
+3. Relevant clinical criteria
+4. Documentation requirements
+5. Transparent risk signals
+6. Supporting evidence
+7. Source information
+8. Recommended items to verify
+
+### Phase 1 Deliverable
+
+> **A functioning, evidence-based Prior Authorization Risk Engine MVP.**
 
 ---
 
-# 43. Phase 2
+## Phase 2 — Provider & Utilization Intelligence
+
+### Goal
+
+Add historical claims and provider behavior to the PA risk assessment.
 
 Add:
 
-* Provider intelligence
-* Peer comparisons
+* Provider utilization
+* Procedure volume
+* Diagnosis/procedure patterns
+* Place-of-service patterns
+* Peer groups
 * Historical utilization
-* Documentation prediction
-* More sophisticated policy matching
-* Commercial payer policies
+* Provider-level signals
 
----
-
-# 44. Phase 3
-
-Add:
-
-* Historical authorization outcomes
-* ML risk model
-* Model explainability
-* Calibration
-* Payer-specific models
-* Provider-specific patterns
-
----
-
-# 45. Phase 4
-
-Add workflow integration:
+The engine becomes:
 
 ```text
-PA request received
-       ↓
-Risk Engine
-       ↓
-Policy retrieval
-       ↓
-Documentation checklist
-       ↓
-Analyst review
-       ↓
-Authorization workflow
+Policy Risk
++
+Clinical/Diagnosis Risk
++
+Documentation Risk
++
+Utilization Context
 ```
 
-Eventually the product could generate:
+### Deliverable
 
-> **Pre-authorization submission checklist**
-
-based on the applicable policy.
+**Provider-aware PA Risk Engine**
 
 ---
 
-# 46. Future Product Expansion
+## Phase 3 — Machine Learning Risk Prediction
 
-The architecture can eventually support:
+### Goal
 
-## Documentation Intelligence
+Determine whether historical patterns can improve risk prioritization.
 
-> "What documentation is likely to be needed?"
+Create a synthetic or appropriately licensed labeled authorization dataset.
 
-## Medical Policy Intelligence
+Potential target:
 
-> "Which policy applies?"
+```text
+Additional Review Required
+```
 
-## Denial Prevention
+rather than initially attempting to predict final approval.
 
-> "What characteristics are associated with downstream denial?"
+Test:
 
-## Provider Intelligence
+1. Logistic Regression
+2. Random Forest
+3. Gradient Boosting
 
-> "How does this provider's utilization compare with peers?"
-
-## Claims Risk
-
-> "What downstream claim risk should be investigated?"
-
-## Appeals Intelligence
-
-> "Which policy criteria and documentation support an appeal?"
-
----
-
-# 47. Important Guardrails
-
-The product must not represent itself as a clinical or authorization decision-maker.
-
-Avoid:
-
-> "Authorization will be denied."
-
-Instead:
-
-> "This request has signals associated with additional authorization review."
-
-Avoid:
-
-> "The patient does not meet medical necessity."
-
-Instead:
-
-> "The available information does not establish that the identified policy criteria are satisfied."
-
-Avoid:
-
-> "This provider is high risk."
-
-Instead:
-
-> "The provider's utilization differs from the selected peer benchmark."
-
----
-
-# 48. Model Evaluation
-
-When real labeled data becomes available, evaluate:
-
-### Classification
+Evaluate:
 
 * Precision
 * Recall
 * F1
 * ROC-AUC
 * PR-AUC
+* Calibration
+* False positives
+* False negatives
 
-### Calibration
+### Deliverable
 
-* Calibration curve
-* Brier score
-
-### Operational
-
-* Review rate
-* False-positive rate
-* False-negative rate
-* Cases identified earlier
-* Analyst workload reduction
-
-### Fairness / subgroup analysis
-
-Evaluate performance across relevant groups where appropriate.
+**ML-enhanced PA Risk Engine**
 
 ---
 
-# 49. Success Criteria
+## Phase 4 — AI Investigation Assistant
 
-The POC succeeds if a user can enter:
+### Goal
+
+Use an LLM to turn the engine's structured evidence into a useful analyst explanation.
+
+Add:
+
+* Evidence-grounded explanations
+* Policy summarization
+* Documentation checklist generation
+* Natural-language investigation
+* Source references
+* What-to-verify recommendations
+
+Architecture:
 
 ```text
-Procedure
-+
-Diagnosis
-+
-Payer
-+
-Date
+Request
+   ↓
+Rules
+   ↓
+Policy Matching
+   ↓
+ML
+   ↓
+Evidence
+   ↓
+LLM
+   ↓
+Analyst Explanation
 ```
 
-and receive:
+The LLM remains an **explanation and investigation layer**, not the authorization decision-maker.
 
-1. A transparent PA risk assessment
-2. The policies that triggered the assessment
-3. Procedure/diagnosis matching evidence
-4. Documentation requirements
-5. Utilization context
-6. Clear reasons for the risk signal
-7. A grounded AI explanation
-8. Links back to source evidence
+### Deliverable
+
+**AI-assisted Prior Authorization Investigation**
 
 ---
 
-# 50. Eight-Week Development Plan
+## Phase 5 — Denial Prevention
 
-## Week 1 — Foundation
+### Goal
+
+Extend the product beyond pre-service PA risk to downstream claim outcomes.
+
+Connect:
+
+```text
+PA Request
+      ↓
+Authorization
+      ↓
+Claim
+      ↓
+Denial
+```
+
+Analyze:
+
+* PA-related denials
+* Missing documentation
+* Coding mismatches
+* Coverage mismatches
+* Procedure/diagnosis issues
+* Provider patterns
+* Payer-specific patterns
+
+The engine could eventually answer:
+
+> **"What issues identified before service are associated with downstream claim failure?"**
+
+### Deliverable
+
+**Pre-Service + Post-Service Risk Intelligence**
+
+---
+
+# 43. Phase Roadmap
+
+The complete product evolution is:
+
+```text
+PHASE 1
+Foundation & Intelligence MVP
+        ↓
+PHASE 2
+Provider & Utilization Intelligence
+        ↓
+PHASE 3
+Machine Learning Risk Prediction
+        ↓
+PHASE 4
+AI Investigation Assistant
+        ↓
+PHASE 5
+Denial Prevention
+```
+
+This progression is intentional.
+
+You are moving from:
+
+**Rules → Analytics → ML → AI → Outcomes**
+
+rather than trying to build an AI/ML system before establishing the underlying healthcare policy and claims intelligence.
+
+---
+
+# 44. Phase 1 Implementation Timeline
+
+Because Phase 1 is the actual MVP, break it into the following development steps.
+
+## Week 1 — Data Foundation
 
 Build:
 
@@ -1517,6 +1611,7 @@ Build:
 * Documentation rules
 * Clinical criteria signals
 * Coverage signals
+* Risk scoring
 
 **Deliverable:** deterministic PA risk engine.
 
@@ -1529,69 +1624,211 @@ Build:
 * Request form
 * Risk dashboard
 * Policy evidence
-* Explanation panel
+* Recommended verification
+* Methodology page
 
-**Deliverable:** working interactive application.
+**Deliverable:** working Phase 1 application.
 
 ---
 
-## Week 5 — Provider Intelligence
+# 45. Phase 2 Implementation Timeline
 
-Add:
+## Week 5
+
+Build:
 
 * Provider utilization
 * Peer groups
 * Procedure rates
 * Historical patterns
 
-**Deliverable:** provider context.
+## Week 6
+
+Integrate provider signals into the risk engine.
+
+**Deliverable:** provider-aware PA risk assessment.
 
 ---
 
-## Week 6 — ML
+# 46. Phase 3 Implementation Timeline
+
+## Week 7
 
 Build:
 
 * Feature engineering
 * Synthetic authorization dataset
 * Logistic regression
-* Random forest comparison
+* Random forest
 * Model evaluation
 
-**Deliverable:** experimental ML risk model.
+## Week 8
+
+Integrate the selected model and explainability.
+
+**Deliverable:** ML-enhanced risk engine.
 
 ---
 
-## Week 7 — LLM
+# 47. Phase 4 Implementation Timeline
+
+## Week 9
 
 Build:
 
 * Evidence aggregation
-* Structured prompt
-* AI explanation
+* LLM prompt
+* Structured response
 * Source references
-* Guardrails
 
-**Deliverable:** evidence-grounded PA assistant.
-
----
-
-## Week 8 — Deployment
+## Week 10
 
 Build:
 
-* Demo dataset
-* GitHub repository
-* README
-* Architecture diagram
-* Screenshots
-* Streamlit deployment
+* Documentation checklist
+* Natural-language investigation
+* AI explanation interface
 
-**Deliverable:** public portfolio application.
+**Deliverable:** AI-assisted PA investigation.
 
 ---
 
-# 51. Final Product Vision
+# 48. Phase 5 Implementation Timeline
+
+## Future
+
+Add:
+
+* Real authorization outcomes
+* Real denial outcomes
+* Payer-specific models
+* Denial prediction
+* Pre-service intervention
+* Post-service feedback
+
+**Deliverable:** closed-loop PA and denial intelligence.
+
+---
+
+# 49. Future Product Expansion
+
+The architecture can eventually support:
+
+## Documentation Intelligence
+
+> "What documentation is likely to be needed?"
+
+## Medical Policy Intelligence
+
+> "Which policy applies?"
+
+## Denial Prevention
+
+> "What characteristics are associated with downstream denial?"
+
+## Provider Intelligence
+
+> "How does this provider's utilization compare with peers?"
+
+## Claims Risk
+
+> "What downstream claim risk should be investigated?"
+
+## Appeals Intelligence
+
+> "Which policy criteria and documentation support an appeal?"
+
+---
+
+# 50. Important Guardrails
+
+The product must not represent itself as a clinical or authorization decision-maker.
+
+Avoid:
+
+> "Authorization will be denied."
+
+Instead:
+
+> "This request has signals associated with additional authorization review."
+
+Avoid:
+
+> "The patient does not meet medical necessity."
+
+Instead:
+
+> "The available information does not establish that the identified policy criteria are satisfied."
+
+Avoid:
+
+> "This provider is high risk."
+
+Instead:
+
+> "The provider's utilization differs from the selected peer benchmark."
+
+---
+
+# 51. Model Evaluation
+
+When real labeled data becomes available, evaluate:
+
+### Classification
+
+* Precision
+* Recall
+* F1
+* ROC-AUC
+* PR-AUC
+
+### Calibration
+
+* Calibration curve
+* Brier score
+
+### Operational
+
+* Review rate
+* False-positive rate
+* False-negative rate
+* Cases identified earlier
+* Analyst workload reduction
+
+### Fairness / subgroup analysis
+
+Evaluate performance across relevant groups where appropriate.
+
+---
+
+# 52. Success Criteria
+
+The POC succeeds if a user can enter:
+
+```text
+Procedure
++
+Diagnosis
++
+Payer
++
+Date
+```
+
+and receive:
+
+1. A transparent PA risk assessment
+2. The policies that triggered the assessment
+3. Procedure/diagnosis matching evidence
+4. Documentation requirements
+5. Utilization context
+6. Clear reasons for the risk signal
+7. A grounded AI explanation
+8. Links back to source evidence
+
+---
+
+# 53. Final Product Vision
 
 The ultimate product is:
 
