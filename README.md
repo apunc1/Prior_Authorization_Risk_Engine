@@ -1,4 +1,3 @@
-# Prior_Authorization_Risk_Engine
 # Prior Authorization Risk Engine
 
 ## 1. Executive Summary
